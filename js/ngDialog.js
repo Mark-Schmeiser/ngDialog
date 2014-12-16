@@ -3,19 +3,12 @@
  * http://github.com/likeastore/ngDialog
  * (c) 2013-2014 MIT License, https://likeastore.com
  */
+ 
+ /**
+  * Extended by Mark Schmeiser to be loadable in a RequireJS environment
+  */
 
-(function (root, factory) {
-    if (typeof module !== 'undefined' && module.exports) {
-        // CommonJS
-        module.exports = factory(require('angular'));
-    } else if (typeof define === 'function' && define.amd) {
-        // AMD
-        define(['angular'], factory);
-    } else {
-        // Global Variables
-        factory(root.angular);
-    }
-}(this, function (angular, undefined) {
+(function (window, angular, undefined) {
 	'use strict';
 
 	var m = angular.module('ngDialog', []);
@@ -444,4 +437,4 @@
 			}
 		};
 	}]);
-}));
+})(window, window.angular);
