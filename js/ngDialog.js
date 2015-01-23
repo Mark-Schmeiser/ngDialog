@@ -1,7 +1,7 @@
 /*
  * ngDialog - easy modals and popup windows
  * http://github.com/likeastore/ngDialog
- * (c) 2013-2014 MIT License, https://likeastore.com
+ * (c) 2013-2015 MIT License, https://likeastore.com
  */
  
  /**
@@ -19,6 +19,7 @@
 	var animationEndSupport = isDef(style.animation) || isDef(style.WebkitAnimation) || isDef(style.MozAnimation) || isDef(style.MsAnimation) || isDef(style.OAnimation);
 	var animationEndEvent = 'animationend webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend';
 	var forceBodyReload = false;
+	var scope;
 
 	m.provider('ngDialog', function () {
 		var defaults = this.defaults = {
@@ -79,10 +80,10 @@
 						var id = $dialog.attr('id');
 
 						if (typeof $window.Hammer !== 'undefined') {
-							var hammerTime = angular.element($dialog).scope().hammerTime;
+							var hammerTime = scope.hammerTime;
 							hammerTime.off('tap', closeByDocumentHandler);
 							hammerTime.destroy && hammerTime.destroy();
-							delete $dialog.scope().hammerTime;
+							delete scope.hammerTime;
 						} else {
 							$dialog.unbind('click');
 						}
@@ -98,8 +99,8 @@
 						$rootScope.$broadcast('ngDialog.closing', $dialog);
 
 						if (animationEndSupport) {
+							scope.$destroy();
 							$dialog.unbind(animationEndEvent).bind(animationEndEvent, function () {
-								$dialog.scope().$destroy();
 								$dialog.remove();
 								if (dialogsCount === 0) {
 									$body.removeClass('ngdialog-open');
@@ -108,7 +109,7 @@
 								$rootScope.$broadcast('ngDialog.closed', $dialog);
 							}).addClass('ngdialog-closing');
 						} else {
-							$dialog.scope().$destroy();
+							scope.$destroy();
 							$dialog.remove();
 							if (dialogsCount === 0) {
 								$body.removeClass('ngdialog-open');
@@ -185,7 +186,7 @@
 						var defer;
 						defers[self.latestID] = defer = $q.defer();
 
-						var scope = angular.isObject(options.scope) ? options.scope.$new() : $rootScope.$new();
+						scope = angular.isObject(options.scope) ? options.scope.$new() : $rootScope.$new();
 						var $dialog, $dialogParent;
 
 						$q.when(loadTemplate(options.template || options.templateUrl)).then(function (template) {
@@ -254,7 +255,6 @@
 
 							$timeout(function () {
 								$compile($dialog)(scope);
-
 								var widthDiffs = $window.innerWidth - $body.prop('clientWidth');
 								$body.addClass('ngdialog-open');
 								var scrollBarWidth = widthDiffs - ($window.innerWidth - $body.prop('clientWidth'));
